@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link href="./css/materialdesignicons.min.css" media="all" rel="stylesheet" type="text/css" />
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>tomato</title>
+    <style>
+        @font-face { font-family: apple-style; src: url('myriad-set-pro_ultralight.woff') format('woff'); }
+
+        *{ padding: 0px; margin: 0px; font-family: "Helvetica Neue", Arial, sans-serif; -webkit-user-select: none; -webkit-font-smoothing: antialiased; }
+        button{ cursor: pointer; }
+        input { -webkit-user-select: text; }
+        input, button, select{ outline: none; -webkit-tap-highlight-color: transparent; }
+
+        button:active{ -webkit-box-shadow:0 0px 0px rgba(0,0,0,.27); }
+
+        ::-webkit-input-placeholder{ color: #ffffff; }
+
+        .wrapper{ position: absolute; width: 100%; height: 100%; left: 0px; top: 0px; z-index: 7; }
+        .wrapper .view{ position: relative; width: 100%; height: 100%; overflow: hidden; }
+
+        .main-view{ transform: translateY(-000px); z-index: 17; -webkit-transition: all 0.4s cubic-bezier( 0.785, 0.135, 0.15, 0.86 ); }
+        .info-view{ top: -100%; left: 0px; background-color: #000000; z-index: 7; color: #ffffff; }
+        .info-view ul    { position: relative; top: 10%; width: 100%; list-style: none; }
+        .info-view ul li { position: relative; width: 90%; margin: 0px auto; font-size: 1.7em; padding-top: 17px; height: auto; line-height: 57px; }
+        .info-view ul li:before{ position: absolute; top: 5px; content: attr(BF); height: 11px; line-height: 11px; color: #ffffff; font-size: 1em; }
+
+        .g-tag    { position: absolute; bottom: 0px; left: 0px; width: 100%; text-align: center; font-size: 2em; color: #E43C0F; }
+
+        .buy-btn, .next-btn, .close-btn
+        { position: fixed; top: 80%; overflow: hidden; font-size: 1em; border: none; width: 18%; padding-top: 18%; border-radius: 50%; -webkit-transition: all 0.4s cubic-bezier( 0, 0.01, 0.01, 1 ); -webkit-box-shadow: 0 3px 6px rgba(0,0,0,.2); z-index: 77; }
+        .buy-btn i, .next-btn i, .close-btn i
+        { position: absolute; left: 50%; top: 50%; width: 100%; font-size: 2em; -webkit-transform: translate3d(-50%, -50%, 0); }
+        .buy-btn  { left: 41%;  background-color: #E43C0F; color: #ffffff; }
+        .next-btn { right: 11%; background-color: white; color: #E43C0F; }
+        .close-btn{ left: 11%; background-color: white; }
+
+        .buy-btn.min, .next-btn.min, .close-btn.min
+        { -webkit-transform: scale(0); }
+
+        .animation{ position: absolute; left: 50%; top: 80%; width: 100%; padding-top: 100%; background-color: #E43C0F; border-radius: 50%; -webkit-transform: translate3d(-50%, -50%, 0) scale(0); -webkit-transition: all 1s cubic-bezier( 0.785, 0.135, 0.15, 0.86 ); z-index: 17; }
+        .animation.on{ -webkit-transform: translate3d(-50%, -50%, 0) scale(3.7); }
+
+        .back-view{ background-color: #ffffff; position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 7; }
+        .back-view h1 { font-size: 3em; color: #E43C0F; margin: 17% 0% 0% 10%; font-family: apple-style; }
+        .back-view img{ position: relative; width: 100%; height: auto; }
+        .form-view{ display: none; background-color: #E43C0F; position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 27; }
+        .msg-view { position: absolute; left: 100%; top: 0px; width: 100%; height: 100%; background-color: #ffd700; z-index: 37; -webkit-transition: all 0.37s cubic-bezier( 0, 0.01, 0.01, 1 ); }
+        .msg-view.push{ -webkit-transform: translateX(-100%); }
+        .msg-view h1{ margin: 7% 5% 7px 5%; font-size: 2em; color: #ffffff; }
+        .msg-view p { margin: 17px 5% 7px 5%; font-size: 1.5em; color: #ffffff; }
+        .refresh-btn
+        { position: relative; width: auto; padding: 3px 27px; margin: 7px 5%; font-size: 1.7em; background-color: #ffffff; color: #ffd700; border: none; border-radius: 3px; -webkit-box-shadow:0 1px 6px rgba(0,0,0,.27); }
+
+        .buy-form{ position: relative; width: 100%; }
+        .buy-form{ margin-top: 7%; }
+        .buy-form input, .buy-form select
+        { font-size: 2em; position: relative; width: 90%; height: 57px; margin: 7px 5% 0px 5%; border: none; border-bottom: 2px solid #ffffff; color: white; background-color: #E43C0F; }
+        .buy-form input { border-radius: 0px; }
+        .buy-form select{ border-radius: 0px; -webkit-appearance: none; }
+        .auto-fill
+        { float: right; font-size: 1.2em; width: auto; padding: 0px 27px; margin: 17px 5% 0px 5%; height: 47px; border: none; background-color: #ffffff; color: #E43C0F; border-radius: 3px; -webkit-box-shadow:0 1px 6px rgba(0,0,0,.27); }
+
+        .loading{ display: none; position: absolute; width: 100%; height: 11px; background-color: #ffffff; bottom: 0px; }
+        .loading:before
+        { position: absolute; content: attr(BF); width: 20%; height: 100%; left: 0px; background-color: #E43C0F; -webkit-animation: bear-move 1.7s infinite; }
+
+        @-webkit-keyframes bear-move   { 0%   { -webkit-transform: translateX( -100% ); } 100% { -webkit-transform: translateX(  500% ); } }
+
+        .animation-shake { -webkit-animation: shake 0.9s }
+        @-webkit-keyframes shake {
+            0%   { -webkit-transform: translateX( 0   ); }
+            12.5%{ -webkit-transform: translateX( 3%  ); }
+            25%  { -webkit-transform: translateX( -3% ); }
+            37.5%{ -webkit-transform: translateX( 3%  ); }
+            50%  { -webkit-transform: translateX( -3% ); }
+            62.5%{ -webkit-transform: translateX( 3%  ); }
+            75%  { -webkit-transform: translateX( -3% ); }
+            87.5%{ -webkit-transform: translateX( 3%  ); }
+            100% { -webkit-transform: translateX( 0%  ); }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="buy-btn"><i class="mdi mdi-shopping"></i></button>
+    <button class="next-btn min"><i class="mdi mdi-send"></i></button>
+    <button class="close-btn min"><i class="mdi mdi-close"></i></button>
+
+    <section class="wrapper">
+        <section class="view main-view">
+
+            <div class="back-view">
+                <h1>Good tomatoes to buy!</h1>
+                <img src="tomato.jpg">
+                <p class="g-tag"><i class="mdi mdi-chevron-up"></i></p>
+            </div>
+
+            <div class="animation"></div>
+
+            <div class="form-view">
+                <form class="buy-form">
+                    <input type="text" placeholder="Your Address Here"   id="f-address" >
+                    <input type="text" placeholder="Your Telephone Here" id="f-phone">
+                    <select id="f-number">
+                        <option value="0">Number</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+                </form>
+                <button class="auto-fill">autofill</button>
+                <div class="loading"></div>
+            </div>
+
+            <div class="msg-view">
+                <h1>Oops!</h1>
+                <p>There is no Server respond</p>
+                <button class="refresh-btn">Try again</button>
+            </div>
+
+        </section>
+
+        <section class="view info-view">
+            <ul>
+                <li BF="Author:">Mailman Recat</li>
+                <li BF="Gmail:">MailmanRecat@gmail.com</li>
+                <li BF="Version:">7.0.1</li>
+                <li BF="FeedBack:">MailmanRecat@gmail.com</li>
+                <li BF="Thanks:">materialdesignicons</li>
+            </ul>
+        </section>
+    </section>
+</body>
+<script>
+    (function(window){
+        var copyright = {
+            Author  : 'Mailmam Recat',
+            Date    : '2015',
+            Mail    : 'MailmanRecat@gmail.com',
+            Blog    : 'http://zhihupaper.com',
+            Browser : 'chrome only',
+            saying  : '',
+            info    : function(){ var self = copyright; console.log( 'Anthor: '+self.Author+' | Date: '+self.Date+' | saying: '+self.saying+' | Mail: '+self.Mail+' | Browser: '+self.Browser ) }
+        };
+
+        copyright.info();
+        return window.copyright = copyright;
+    })(window);
+
+    var $  = function(obj){ return document.querySelector(obj)                    },
+            $$   = function(obj )    { return document.querySelectorAll(obj)      },
+            $n   = function(obj )    { return document.getElementsByClassName(obj)};
+
+    (function(window){
+
+        var link_url = {
+            chrome      : 'https://www.google.com/intl/en/chrome/browser/desktop/index.html#brand=CHMB&utm_campaign=en&utm_source=en-ha-na-us-sk&utm_medium=ha',
+            zhihu       : 'http://zhihu.com',
+            app_iphone  : 'https://itunes.apple.com/cn/app/zhi-hu-ri-bao-mei-ri-ti-gong/id639087967?mt=8',
+            app_android : 'https://play.google.com/store/apps/details?id=com.zhihu.daily.android',
+            blog        : 'http://rbearblog.sinaapp.com/project/SPC/',
+            zhihupaper  : 'http://rbearblog.sinaapp.com/project/zhihupaper/',
+            github      : '',
+            twitter     : ''
+        };
+
+        var link = (function(){
+            [].slice.call( document.querySelectorAll('.link')).forEach(function(obj, i){
+                var label = obj.getAttribute('data-label'); obj.href = link_url[ label ];
+            });
+        })();
+
+    })(window);
+
+    var isON = true;
+
+    var Interaction = {
+        btn: {
+            buy:  $('.buy-btn').classList,
+            next: $('.next-btn').classList,
+            close: $('.close-btn').classList,
+            buyZoomDown  : function(){ var self = Interaction; self.btn.buy.add('min');      return self  },
+            buyZoomUp    : function(){ var self = Interaction; self.btn.buy.remove('min');   return self  },
+            nextZoomDown : function(){ var self = Interaction; self.btn.next.add('min');     return self  },
+            nextZoomUp   : function(){ var self = Interaction; self.btn.next.remove('min');  return self  },
+            closeZoomDown: function(){ var self = Interaction; self.btn.close.add('min');    return self  },
+            closeZoomUp  : function(){ var self = Interaction; self.btn.close.remove('min'); return self  }
+        },
+        view: {
+            mainView : $('.main-view'),
+            infoView : $('.info-view'),
+            back     : $('.back-view'),
+            form     : $('.form-view'),
+            msg      : $('.msg-view').classList,
+            animation: $('.animation').classList,
+            loading  : $('.loading'),
+            formShow : function(){ var self = Interaction; self.view.form.style.display = 'block'; return self },
+            formHide : function(){ var self = Interaction; self.view.form.style.display = 'none' ; return self },
+            msgPush  : function(){ var self = Interaction; self.view.msg.add('push');              return self },
+            msgpop   : function(){ var self = Interaction; self.view.msg.remove('push');           return self },
+            animationDo   : function(){ var self = Interaction; self.view.animation.add('on');     return self },
+            animationNotDo: function(){ var self = Interaction; self.view.animation.remove('on');  return self },
+            loadingStart  : function(){ var self = Interaction; self.view.loading.style.display = 'block'; return self },
+            loadingStop   : function(){ var self = Interaction; self.view.loading.style.display = 'none' ; return self },
+            shake         : function(){ var self = Interaction; self.view.form.classList.add('animation-shake'); return self; }
+        }
+    };
+
+    $('.form-view').addEventListener('webkitAnimationEnd', function(){ this.classList.remove('animation-shake'); });
+
+    var     Faddress  = $('#f-address'),
+            Fphone    = $('#f-phone'),
+            Fnumber   = $('#f-number'),
+            RPN       = 11;
+
+    var isRF = function(){
+        if( Faddress.value === '' || Fphone.value === '' || Fphone.value.length !== RPN || Fnumber.value === 0 ) return false;
+        else                                                                                                     return true;
+    };
+
+    var isCI = function(){
+        if( Interaction.view.form.style.display === 'block' ) return false;
+        else                                                  return true;
+    };
+
+    $('.auto-fill').onclick = function(){
+        Faddress.value = 'Seven street';
+        Fphone.value   = '17777777777';
+        Fnumber.value  = 1;
+    };
+
+    var toggle = function(){
+        if( view.form.style.display === 'none' ) view.form.style.display = 'block';
+        else                                     view.form.style.display = 'none';
+    };
+
+    $('.buy-btn').onclick = function(){
+        Interaction.btn.buyZoomDown().view.animationDo();
+        isON = true;
+    };
+
+    $('.close-btn').onclick = function(){
+        Interaction.view.formHide().btn.closeZoomDown().btn.nextZoomDown().btn.buyZoomUp().view.animationNotDo();
+        Faddress.value = Fphone.value = ''; Fnumber.value = 0;
+    };
+
+    $('.next-btn').onclick = function(){
+
+        if( !isRF() ) Interaction.view.shake();
+        if( !isRF() ) return;
+
+        Interaction.view.loadingStart();
+        setTimeout(function(){
+            Interaction.view.loadingStop().btn.nextZoomDown().btn.closeZoomDown().view.msgPush();
+        }, 2700);
+    };
+
+
+    $('.animation').addEventListener('webkitTransitionEnd', function(){
+        if( isON ){
+            $('.form-view').style.display = 'block';
+            Interaction.btn.nextZoomUp().btn.closeZoomUp();
+        }
+        isON = false;
+    });
+
+    $('.refresh-btn').onclick = function(){
+        Interaction.btn.nextZoomUp().btn.closeZoomUp().view.msgpop();
+    };
+
+    document.addEventListener('touchmove', function(e) { if(e.target.type == 'range') return; e.preventDefault(); });
+
+    var touchController = function( el, delegate, options ){
+        var self = this;
+
+        self.el            = el;
+        self.delegate      = delegate;
+        self.DRFn          = self.delegate.require;
+        self.DOFn          = self.delegate.option;
+        self.isTouchDevice = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|playbook|silk|BlackBerry|BB10|Windows Phone|Tizen|Bada|webOS|IEMobile|Opera Mini)/);
+        self.isTouch       = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || (navigator.maxTouchPoints));
+
+        self.touchStartY   = 0;
+        self.touchStartX   = 0;
+        self.touchEndY     = 0;
+        self.touchEndX     = 0;
+
+        self.options       = {
+            touchSensitivity: 10,
+            autoScrolling: true
+        };
+
+        for ( var i in options ) {
+            self.options[i] = options[i];
+        }
+
+        if( typeof self.DRFn.DidScrollUp    !== 'function' ) return { ER: 'require fn DidScrollUp lost!'   };
+        if( typeof self.DRFn.DidScrollDown  !== 'function' ) return { ER: 'require fn DidScrollDown lost!' };
+        if( typeof self.DRFn.DidScrollLeft  !== 'function' ) return { ER: 'require fn DidScrollLeft lost!' };
+        if( typeof self.DRFn.DidScrollRight !== 'function' ) return { ER: 'require fn DidScrollRight lost!'};
+
+        self.init();
+    };
+    touchController.prototype = {
+        init: function(){
+            var self = this;
+            self.addTouchHandler();
+        },
+        addListenerMulti : function( el, s, fn ){
+            var self = this;
+            var evts = s.split(' '), i = 0;
+            for ( iLen = evts.length; i < iLen; i++ ) {
+                if  ( document.addEventListener){ self.el.addEventListener(evts[i], fn, false);}
+                else{ self.el.attachEvent(evts[i], fn, false);                                 }
+            }
+        },
+        getWindowHeight  : function(){
+            return  'innerWidth' in window ? window.innerWidth : document.documentElement.offsetWidth;
+        },
+        getWindowWidth   : function(){
+            return  'innerWidth' in window ? window.innerWidth : document.documentElement.offsetWidth;
+        },
+        isReallyTouch    : function( e ){
+            return typeof e.pointerType === 'undefined' || e.pointerType != 'mouse';
+        },
+        preventDefault   : function(e){
+            e.preventDefault ? e.preventDefault() : e.returnValue = false;
+        },
+        getMSPointer     : function(){
+            var pointer;
+
+            //IE >= 11 & rest of browsers
+            if( window.PointerEvent ){ pointer = { down: 'pointerdown', move: 'pointermove'}; }
+
+            //IE < 11
+            else{ pointer = { down: 'MSPointerDown', move: 'MSPointerMove'}; }
+
+            return pointer;
+        },
+        getEventsPage    : function( e ){
+            var self = this;
+            var events = [];
+
+            events.y = (typeof e.pageY !== 'undefined' && (e.pageY || e.pageX) ? e.pageY : e.touches[0].pageY);
+            events.x = (typeof e.pageX !== 'undefined' && (e.pageY || e.pageX) ? e.pageX : e.touches[0].pageX);
+
+            //in touch devices with scrollBar:true, e.pageY is detected, but we have to deal with touch events. #1008
+            if( self.isTouch && self.isReallyTouch(e) ){
+                events.y = e.touches[0].pageY;
+                events.x = e.touches[0].pageX;
+            }
+
+            return events;
+        },
+        addTouchHandler  : function(){
+            var self = this;
+            if( self.isTouchDevice || self.isTouch ){
+
+                if (document.addEventListener) {
+                    //Microsoft pointers
+                    var MSPointer = self.getMSPointer();
+
+                    self.addListenerMulti( self.el, 'touchstart ' + MSPointer.down, self.bindFn(self, self.touchStartHandler) );
+                    self.addListenerMulti( self.el, 'touchmove ' + MSPointer.move, self.bindFn(self, self.touchMoveHandler) );
+                }
+            }else{
+                if( typeof self.DOFn.NoTouchDevice === 'function' ){ self.DOFn.NoTouchDevice(); }
+            }
+        },
+        DtouchStartHandler: function(){ console.log('start'); },
+        touchStartHandler: function(event){
+            var self = this;
+            var e = window.event || e || e.originalEvent;
+
+            if( self.isReallyTouch(e) ){
+                var touchEvents = self.getEventsPage(e);
+                self.touchStartY = touchEvents.y;
+                self.touchStartX = touchEvents.x;
+            }
+
+        },
+        DtouchMoveHandler: function(){ console.log('move'); },
+        touchMoveHandler : function(event){
+            var self = this;
+            var e = window.event || e || e.originalEvent;
+
+            if( self.isReallyTouch(e) ){
+                if( self.options.autoScrolling ){
+                    self.preventDefault(event);
+                }
+
+                var i = 0;
+
+                if( i == 0 ) {
+                    var touchEvents = self.getEventsPage(e);
+
+                    self.touchEndY = touchEvents.y;
+                    self.touchEndX = touchEvents.x;
+
+                    if ( Math.abs(self.touchStartX - self.touchEndX) > (Math.abs(self.touchStartY - self.touchEndY))) {
+
+                        if (Math.abs(self.touchStartX - self.touchEndX) > (self.getWindowWidth() / 100 * self.options.touchSensitivity)) {
+                            if (self.touchStartX > self.touchEndX) {
+                                self.DRFn.DidScrollRight();
+                            } else {
+                                self.DRFn.DidScrollLeft();
+                            }
+                        }
+                    }
+
+                    else if( self.options.autoScrolling ){
+
+                        if (Math.abs(self.touchStartY - self.touchEndY) > (self.getWindowHeight() / 100 * self.options.touchSensitivity)) {
+                            if (self.touchStartY > self.touchEndY) {
+                                self.DRFn.DidScrollDown();
+                            } else if (self.touchEndY > self.touchStartY) {
+                                self.DRFn.DidScrollUp();
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        bindFn: function(obj, fn){
+            return function(){ fn.apply(obj, arguments); }
+        }
+    };
+
+    var mouseWheelController = function(el, delegate, options){
+        var self = this;
+
+        self.el        = el;
+        self.delegate  = delegate;
+        self.DRFn      = self.delegate.require;
+        self.DOFn      = self.delegate.option;
+
+        self.options   = {
+            autoScrolling: true
+        };
+
+        self.prevTime  = new Date().getTime();
+        self.scrollings = [];
+        self.canS = true;
+
+        for( var key in options ){
+            self.options[key] = options[key];
+        }
+
+        if( typeof self.DRFn.DidWheelUp   !== 'function' ) return { ER: 'require fn DidWheelUp not find'   };
+        if( typeof self.DRFn.DidWheelDown !== 'function' ) return { ER: 'require fn DidWheelDown not find' };
+
+        self.init();
+        console.log('init over');
+
+    };
+    mouseWheelController.prototype = {
+        init      : function(){ var self = this; self.addHandler('mousewheel', 'onmousewheel', 'wheel') },
+        getAverage: function(el, nb){
+            var sum = 0;
+
+            //taking `number` elements from the end to make the average, if there are not enought, 1
+            var lastElements = el.slice(Math.max(el.length - nb, 1));
+
+            for(var i = 0; i < lastElements.length; i++){
+                sum = sum + lastElements[i];
+            }
+            return Math.ceil(sum/nb);
+        },
+        addHandler: function(normal, oldIE, firefox){
+            var self = this, fn = self.bindFn(self, self.MouseWheelHandler);
+            if( self.el.addEventListener ){
+                self.el.addEventListener(normal, fn, false);
+
+                if(typeof firefox !== 'undefined'){ self.el.addEventListener(firefox, fn, false); }
+            }else{
+                self.el.attachEvent(oldIE, fn);
+            }
+        },
+        MouseWheelHandler: function(e){
+            var self = this;
+
+            var curTime = new Date().getTime();
+
+            if(self.options.autoScrolling){
+                e = window.event || e || e.originalEvent;
+
+                var value = e.wheelDelta || -e.deltaY || -e.detail;
+                var delta = Math.max(-1, Math.min(1, value));
+
+                if(self.scrollings.length > 149){
+                    self.scrollings.shift();
+                }
+
+                self.scrollings.push(Math.abs(value));
+
+                var timeDiff = curTime - self.prevTime;
+                prevTime = curTime;
+
+
+                if(timeDiff > 200){
+                    self.scrollings = [];
+                }
+
+                if(self.canS){
+
+                    var averageEnd = self.getAverage(self.scrollings, 10);
+                    var averageMiddle = self.getAverage(self.scrollings, 70);
+                    var isAccelerating = averageEnd >= averageMiddle;
+
+                    if(isAccelerating){
+                        if (delta < 0) {
+                            self.DRFn.DidWheelDown();
+                        }else {
+                            self.DRFn.DidWheelUp();
+                        }
+                    }
+                }
+
+                return false;
+            }
+        },
+        bindFn: function(obj, fn){
+            return function(){ fn.apply(obj, arguments); }
+        }
+    };
+
+    var canS = false;
+
+    var     MWlock = false, mt = 1000,
+            MWunlock = function(){
+                setTimeout(function(){
+                    MWlock = false;
+                }, mt);
+            };
+
+    document.addEventListener('touchstart', function(e){ canS = true; }, false);
+
+    var Mde = {
+        require: {
+            DidWheelUp: function(){
+                if( MWlock || !isCI() ) return;
+                $('.main-view').style.webkitTransform = 'translateY(0%)';
+                $('.buy-btn').classList.remove('min');
+                MWlock = true;
+                MWunlock();
+            },
+            DidWheelDown: function(){
+                if( MWlock || !isCI() ) return;
+                $('.main-view').style.webkitTransform = 'translateY(-100%)';
+                $('.buy-btn').classList.add('min');
+                MWlock = true;
+                MWunlock();
+            }
+        }
+    };
+
+    var touchControllerDelegate = {
+        require: {
+            DidScrollUp   : function(){
+                if( !canS || !isCI() ) return;
+                $('.main-view').style.webkitTransform = 'translateY(0%)';
+                $('.buy-btn').classList.remove('min');
+                canS = false;
+            },
+            DidScrollDown : function(){
+                if( !canS || !isCI() ) return;
+                $('.main-view').style.webkitTransform = 'translateY(-100%)';
+                $('.buy-btn').classList.add('min');
+                canS = false;
+            },
+            DidScrollLeft : function(){ return },
+            DidScrollRight: function(){ return }
+        },
+        option : {
+            NoTouchDevice: function(){
+                var t = new mouseWheelController( $('.wrapper'), Mde, {} );
+            }
+        }
+    };
+
+    var tn = new touchController($('.wrapper'), touchControllerDelegate, { touchSensitivity: 10 } );
+
+</script>
+</html>

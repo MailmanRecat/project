@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>TouchController</title>
+    <style>
+        @font-face {
+            font-family: roboto;
+            src:url('Roboto.woff2') format('woff2');
+        }
+
+        *{ padding: 0px; margin: 0px; -webkit-user-select: none; }
+
+        .window{ position: absolute; width: 80%; height: 80%; left: 10%; top: 5%; -webkit-box-shadow:0 1px 6px rgba(0,0,0,.27); overflow: hidden; }
+
+        .scroll-wrap{ position: relative; width: 100%; height: 100%; left: 0px; top: 0px; -webkit-transition: all 0.01s; }
+        ul{ position: absolute; width: 100%; height: auto; list-style: none; }
+        ul li{ position: relative; width: 100%; height: 37px; border-bottom: 1px #ffd700 solid; line-height: 37px; }
+    </style>
+</head>
+<body>
+    <div class="window">
+        <div class="scroll-wrap">
+            <ul>
+                <li>1</li>
+                <li>2</li>
+                <li>3</li>
+                <li>4</li>
+                <li>5</li>
+                <li>6</li>
+                <li>7</li>
+                <li>8</li>
+                <li>9</li>
+                <li>10</li>
+                <li>11</li>
+                <li>12</li>
+                <li>13</li>
+                <li>14</li>
+                <li>15</li>
+                <li>16</li>
+                <li>17</li>
+                <li>18</li>
+                <li>19</li>
+                <li>20</li>
+                <li>21</li>
+                <li>22</li>
+                <li>23</li>
+                <li>24</li>
+                <li>25</li>
+                <li>26</li>
+                <li>27</li>
+                <li>28</li>
+                <li>29</li>
+                <li>30</li>
+                <li>31</li>
+                <li>32</li>
+                <li>33</li>
+                <li>34</li>
+                <li>35</li>
+                <li>36</li>
+                <li>37</li>
+            </ul>
+        </div>
+    </div>
+</body>
+<script>
+    var $ = function(el){ return document.querySelector(el) };
+
+    var touchController = function( el, delegate, options ){
+        var self = this;
+
+        self.el            = el;
+        self.delegate      = delegate;
+        self.DRFn          = self.delegate.require;
+        self.DOFn          = self.delegate.option;
+        self.isTouchDevice = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|playbook|silk|BlackBerry|BB10|Windows Phone|Tizen|Bada|webOS|IEMobile|Opera Mini)/);
+        self.isTouch       = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || (navigator.maxTouchPoints));
+
+        self.touchStartY   = 0;
+        self.touchStartX   = 0;
+        self.touchEndY     = 0;
+        self.touchEndX     = 0;
+
+        self.options       = {
+            touchSensitivity: 10,
+            autoScrolling: true
+        };
+
+        for ( var i in options ) {
+            self.options[i] = options[i];
+        }
+
+        if( typeof self.DRFn.DidScrollUp    !== 'function' ) return { ER: 'require fn DidScrollUp lost!'   };
+        if( typeof self.DRFn.DidScrollDown  !== 'function' ) return { ER: 'require fn DidScrollDown lost!' };
+        if( typeof self.DRFn.DidScrollLeft  !== 'function' ) return { ER: 'require fn DidScrollLeft lost!' };
+        if( typeof self.DRFn.DidScrollRight !== 'function' ) return { ER: 'require fn DidScrollRight lost!'};
+
+        self.init();
+    };
+    touchController.prototype = {
+        init: function(){
+            var self = this;
+            self.addTouchHandler();
+        },
+        addListenerMulti : function( el, s, fn ){
+            var self = this;
+            var evts = s.split(' '), i = 0;
+            for ( iLen = evts.length; i < iLen; i++ ) {
+                if  ( document.addEventListener){ self.el.addEventListener(evts[i], fn, false);}
+                else{ self.el.attachEvent(evts[i], fn, false);                                 }
+            }
+        },
+        getWindowHeight  : function(){
+            return  'innerWidth' in window ? window.innerWidth : document.documentElement.offsetWidth;
+        },
+        getWindowWidth   : function(){
+            return  'innerWidth' in window ? window.innerWidth : document.documentElement.offsetWidth;
+        },
+        isReallyTouch    : function( e ){
+            return typeof e.pointerType === 'undefined' || e.pointerType != 'mouse';
+        },
+        preventDefault   : function(e){
+            e.preventDefault ? e.preventDefault() : e.returnValue = false;
+        },
+        getMSPointer     : function(){
+            var pointer;
+
+            //IE >= 11 & rest of browsers
+            if( window.PointerEvent ){ pointer = { down: 'pointerdown', move: 'pointermove'}; }
+
+            //IE < 11
+            else{ pointer = { down: 'MSPointerDown', move: 'MSPointerMove'}; }
+
+            return pointer;
+        },
+        getEventsPage    : function( e ){
+            var self = this;
+            var events = [];
+
+            events.y = (typeof e.pageY !== 'undefined' && (e.pageY || e.pageX) ? e.pageY : e.touches[0].pageY);
+            events.x = (typeof e.pageX !== 'undefined' && (e.pageY || e.pageX) ? e.pageX : e.touches[0].pageX);
+
+            //in touch devices with scrollBar:true, e.pageY is detected, but we have to deal with touch events. #1008
+            if( self.isTouch && self.isReallyTouch(e) ){
+                events.y = e.touches[0].pageY;
+                events.x = e.touches[0].pageX;
+            }
+
+            return events;
+        },
+        addTouchHandler  : function(){
+            var self = this;
+            if( self.isTouchDevice || self.isTouch ){
+
+                if (document.addEventListener) {
+                    //Microsoft pointers
+                    var MSPointer = self.getMSPointer();
+
+                    self.addListenerMulti( self.el, 'touchstart ' + MSPointer.down, self.bindFn(self, self.touchStartHandler) );
+                    self.addListenerMulti( self.el, 'touchmove ' + MSPointer.move, self.bindFn(self, self.touchMoveHandler) );
+                }
+            }else{
+                if( typeof self.DOFn.NoTouchDevice === 'function' ){ self.DOFn.NoTouchDevice(); }
+            }
+        },
+        DtouchStartHandler: function(){ console.log('start'); },
+        touchStartHandler: function(event){
+            var self = this;
+            var e = window.event || e || e.originalEvent;
+
+            if( self.isReallyTouch(e) ){
+                var touchEvents = self.getEventsPage(e);
+                self.touchStartY = touchEvents.y;
+                self.touchStartX = touchEvents.x;
+            }
+
+        },
+        DtouchMoveHandler: function(){ console.log('move'); },
+        touchMoveHandler : function(event){
+            var self = this;
+            var e = window.event || e || e.originalEvent;
+
+            if( self.isReallyTouch(e) ){
+                if( self.options.autoScrolling ){
+                    self.preventDefault(event);
+                }
+
+                var i = 0;
+
+                if( i == 0 ) {
+                    var touchEvents = self.getEventsPage(e);
+
+                    self.touchEndY = touchEvents.y;
+                    self.touchEndX = touchEvents.x;
+
+                    var DidMoveLenght = {
+                        x: Math.abs( self.touchStartX - self.touchEndX ),
+                        y: Math.abs( self.touchStartY - self.touchEndY )
+                    };
+
+                    if( typeof self.DOFn.getDidMoveLenght === 'function' ){ self.DOFn.getDidMoveLenght( DidMoveLenght ); }
+
+                    if ( Math.abs(self.touchStartX - self.touchEndX) > (Math.abs(self.touchStartY - self.touchEndY))) {
+
+                        if (Math.abs(self.touchStartX - self.touchEndX) > (self.getWindowWidth() / 100 * self.options.touchSensitivity)) {
+                            if (self.touchStartX > self.touchEndX) {
+                                self.DRFn.DidScrollRight();
+                            } else {
+                                self.DRFn.DidScrollLeft();
+                            }
+                        }
+                    }
+
+                    else if( self.options.autoScrolling ){
+
+                        if (Math.abs(self.touchStartY - self.touchEndY) > (self.getWindowHeight() / 100 * self.options.touchSensitivity)) {
+                            if (self.touchStartY > self.touchEndY) {
+                                self.DRFn.DidScrollDown();
+                            } else if (self.touchEndY > self.touchStartY) {
+                                self.DRFn.DidScrollUp();
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        bindFn: function(obj, fn){
+            return function(){ fn.apply(obj, arguments); }
+        }
+    };
+
+    var el = $('.scroll-wrap ul'),
+            elSty = el.style,
+            Tdis = 0;
+    var Dl = 0, BD = 0, DD = 0;
+
+    var _translate = function(Dis){
+        DD = BD + Dl;
+//        BD += DD;
+        console.log(DD);
+        elSty.webkitTransform = 'translateY(-'+ DD +'px)';
+    };
+
+    var setTop = function(){
+        console.log(Dl);
+        var AD = Math.abs( el.offsetTop), DD = AD + Dl;
+        console.log(DD);
+//        elSty.top = - DD + 'px';
+        console.log(el.offsetTop);
+    };
+
+
+    var touchControllerDelegate = {
+        require: {
+            DidScrollUp   : function(){
+
+            },
+            DidScrollDown : function(){
+
+            },
+            DidScrollLeft : function(){
+
+            },
+            DidScrollRight: function(){
+
+            }
+        },
+        option : {
+            NoTouchDevice: function(){
+                console.log('no touch');
+            },
+            getDidMoveLenght: function(L){
+//                console.log(L);
+                Dl = L.y;
+                _translate(Dl);
+            }
+        }
+    };
+
+    var tn = new touchController($('.window'), touchControllerDelegate, { touchSensitivity: 10 } );
+
+    $('.window').addEventListener('touchend', function(){
+//        setTop();
+        BD += DD;
+    }, false);
+
+    var UIWindow = function(){};
+    var UIViewController = function(){};
+    UIViewController.prototype = {
+        addSubView: function(){}
+    }
+
+    var UITableView = function(){
+    };
+    UITableView.prototype = {
+        initWidthFrame: function(frame){ console.log(frame) },
+        delegate      : function(delegate){  }
+    };
+
+    var CGPoint = function(x, y){
+        var self = this;
+
+        self.x = x;
+        self.y = y;
+    };
+    CGPoint.prototype = {
+        setX: function(x){ var self = this; self.x = x;     },
+        setY: function(y){ var self = this; self.y = y;     },
+        getX: function( ){ var self = this; return self.x;  },
+        getY: function( ){ var self = this; return self.y;  }
+    };
+
+    var CGSize = function(width, height){
+        var self = this;
+
+        self.width  = width;
+        self.height = height;
+    };
+    CGSize.prototype = {
+        setWidth  : function(width ){ var self = this; self.width  = width;   },
+        setHeight : function(height){ var self = this; self.height = height;  },
+        getWidth  : function( )     { var self = this; return self.width;     },
+        getHeight : function( )     { var self = this; return self.height;    }
+    };
+
+    var CGRect = function(point, size){
+        var self = this;
+
+        self.point = point;
+        self.size  = size;
+    };
+    CGRect.prototype = {
+        getPoint: function(){ var self = this; return self.point; },
+        getSize : function(){ var self = this; return self.size;  }
+    };
+
+    var p = new CGPoint(10, 10),
+        s = new CGSize(100, 37),
+        r = new CGRect(p, s);
+
+    console.log( r.getPoint().getX()      );
+    console.log( r.getPoint().getY()      );
+    console.log( r.getSize().getWidth()   );
+    console.log( r.getSize().getHeight()  );
+
+    var Window = new UIWindow().initWidthFrame(),
+            VC = new UIViewController();
+
+    var delegate = { require: {}, option: {} };
+
+    var table  = new UITableView().initWidthFrame( r );
+    table.delegate( delegate );
+
+    VC.addSubView( table );
+
+
+</script>
+</html>
