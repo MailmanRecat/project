@@ -29,36 +29,40 @@
         .g-tag    { position: absolute; bottom: 0px; left: 0px; width: 100%; text-align: center; font-size: 2em; color: #E43C0F; }
 
         .buy-btn, .next-btn, .close-btn
-        { position: fixed; top: 80%; overflow: hidden; font-size: 1em; border: none; width: 18%; padding-top: 18%; border-radius: 50%; -webkit-transition: all 0.4s cubic-bezier( 0, 0.01, 0.01, 1 ); -webkit-box-shadow: 0 3px 6px rgba(0,0,0,.2); z-index: 77; }
+        { position: fixed; top: 80%; overflow: hidden; font-size: 1em; border: none; width: 18%; padding-top: 18%; border-radius: 50%; -webkit-transition: all 0.4s cubic-bezier( 0, 0.01, 0.01, 1 ); -webkit-box-shadow: 0 3px 6px rgba(0,0,0,.2); z-index: 27; }
         .buy-btn i, .next-btn i, .close-btn i
         { position: absolute; left: 50%; top: 50%; width: 100%; font-size: 2em; -webkit-transform: translate3d(-50%, -50%, 0); }
         .buy-btn  { left: 41%;  background-color: #E43C0F; color: #ffffff; }
         .next-btn { right: 11%; background-color: white; color: #E43C0F; }
-        .close-btn{ left: 11%; background-color: white; }
+        .close-btn{ left: 11%; background-color: white; color: #009E57; }
 
         .buy-btn.min, .next-btn.min, .close-btn.min
         { -webkit-transform: scale(0); }
 
-        .animation{ position: absolute; left: 50%; top: 80%; width: 100%; padding-top: 100%; background-color: #E43C0F; border-radius: 50%; -webkit-transform: translate3d(-50%, -50%, 0) scale(0); -webkit-transition: all 1s cubic-bezier( 0.785, 0.135, 0.15, 0.86 ); z-index: 17; }
+        .animation{ position: absolute; left: 50%; top: 85%; width: 100%; padding-top: 100%; background-color: #E43C0F; border-radius: 50%; -webkit-transform: translate3d(-50%, -50%, 0) scale(0); -webkit-transition: all 1s cubic-bezier( 0.785, 0.135, 0.15, 0.86 ); z-index: 17; }
         .animation.on{ -webkit-transform: translate3d(-50%, -50%, 0) scale(3.7); }
 
         .back-view{ background-color: #ffffff; position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 7; }
-        .back-view h1 { font-size: 3em; color: #E43C0F; margin: 17% 0% 0% 10%; font-family: apple-style; }
+        .back-view h1 { font-size: 3em; color: #E43C0F; margin: 17px 0% 0% 10%; font-family: apple-style; }
         .back-view img{ position: relative; width: 100%; height: auto; }
         .form-view{ display: none; background-color: #E43C0F; position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 27; }
         .msg-view { position: absolute; left: 100%; top: 0px; width: 100%; height: 100%; background-color: #ffd700; z-index: 37; -webkit-transition: all 0.37s cubic-bezier( 0, 0.01, 0.01, 1 ); }
         .msg-view.push{ -webkit-transform: translateX(-100%); }
         .msg-view h1{ margin: 7% 5% 7px 5%; font-size: 2em; color: #ffffff; }
         .msg-view p { margin: 17px 5% 7px 5%; font-size: 1.5em; color: #ffffff; }
-        .refresh-btn
-        { position: relative; width: auto; padding: 3px 27px; margin: 7px 5%; font-size: 1.7em; background-color: #ffffff; color: #ffd700; border: none; border-radius: 3px; -webkit-box-shadow:0 1px 6px rgba(0,0,0,.27); }
+
+        .refresh-btn, .current-local-btn
+        { position: relative; width: auto; padding: 3px 27px; margin: 7px 5%; font-size: 1.7em; border: none; border-radius: 3px; -webkit-box-shadow:0 1px 6px rgba(0,0,0,.17); }
+
+        .refresh-btn{ background-color: #ffffff; color: #ffd700; }
+        .current-local-btn{ margin-left: 10%; padding: 7px 27px; margin-top: 17px; font-size: 1em; background-color: #ffffff; color: #E43C0F; -webkit-box-shadow:0 1px 4px rgba(0,0,0,.07); }
 
         .buy-form{ position: relative; width: 100%; }
         .buy-form{ margin-top: 7%; }
         .buy-form input, .buy-form select
-        { font-size: 2em; position: relative; width: 90%; height: 57px; margin: 7px 5% 0px 5%; border: none; border-bottom: 2px solid #ffffff; color: white; background-color: #E43C0F; }
-        .buy-form input { border-radius: 0px; }
-        .buy-form select{ border-radius: 0px; -webkit-appearance: none; }
+        { font-size: 1.5em; position: relative; height: 47px; margin: 7px 5% 0px 5%; border: 1px #ffffff solid; color: white; background-color: #E43C0F; }
+        .buy-form input { border-radius: 3px; padding-left: 2%; width: 88%; }
+        .buy-form select{ border-radius: 3px; padding-left: 2%; width: calc( 90% + 2px ); -webkit-appearance: none; }
         .auto-fill
         { float: right; font-size: 1.2em; width: auto; padding: 0px 27px; margin: 17px 5% 0px 5%; height: 47px; border: none; background-color: #ffffff; color: #E43C0F; border-radius: 3px; -webkit-box-shadow:0 1px 6px rgba(0,0,0,.27); }
 
@@ -80,6 +84,26 @@
             87.5%{ -webkit-transform: translateX( 3%  ); }
             100% { -webkit-transform: translateX( 0%  ); }
         }
+
+        .location-wrapper{ display: none; position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background: rgba(255, 255, 255, 0); z-index: 37; }
+
+        .local-card       { position: absolute; width: 100%; padding-top: 100%; background-color: #D9D9D9; opacity: 1; overflow: hidden; -webkit-box-shadow:0 1px 6px rgba(0,0,0,.17); }
+        .local-card:before
+        { position: absolute; content: attr(BF); left: -100%; top: -100%; width: 200%; height: 200%; border-radius: 50%; background-color: #ffffff; z-index: 7; -webkit-transform: scale(0); -webkit-transition: all 1s cubic-bezier( 0, 0.01, 0.01, 1 ); }
+        .local-card.on:before{ -webkit-transform: scale(1.5); }
+
+        .local-card .content{ display: none; position: absolute; width: 90%; padding: 0% 5%; height: 100%; background-color: #ffffff; left: 0px; top: 0px; z-index: 27; }
+        .local-card .content p{ position: relative; margin: 17px 0px; left: 0px; font-size: 1.5em; color: #009E57; }
+        .local-card .content button
+        { position: relative; width: auto; background-color: #ffffff; color: #000000; padding: 2px 6px; margin: 7px 7px 0px 7px; font-size: 1.3em; border-radius: 3px; border: none; -webkit-box-shadow:0 1px 4px rgba(0,0,0,.07); }
+        .local-card .content button.l-c-c
+        { position: absolute; bottom: 7px; right: 7px; color: #009E57; -webkit-box-shadow:0 0px 0px rgba(0,0,0,.17); border: none; }
+
+        @-webkit-keyframes MDIC {
+
+        }
+
+        .mdi-map-marker-radius{ margin-right: 17px; }
     </style>
 </head>
 <body>
@@ -88,10 +112,32 @@
     <button class="next-btn min"><i class="mdi mdi-send"></i></button>
     <button class="close-btn min"><i class="mdi mdi-close"></i></button>
 
+    <section class="location-wrapper">
+        <section class="local-card">
+
+            <div class="content">
+                <p>Select your location:</p>
+                <button>Jinan</button>
+                <button>Beijing</button>
+                <button>Shanghai</button>
+                <button>Qingdao</button>
+                <button>Xian</button>
+                <button>Shenzhen</button>
+                <button>Guangzhou</button>
+                <button>Wuhan</button>
+                <button>Nanjing</button>
+                <button>Hangzhou</button>
+
+                <button class="l-c-c">Cancel</button>
+            </div>
+        </section>
+    </section>
+
     <section class="wrapper">
         <section class="view main-view">
 
             <div class="back-view">
+                <button class="current-local-btn"><i class="mdi mdi-map-marker-radius"></i><label class="data-c-location">Jinan</label></button>
                 <h1>Good tomatoes to buy!</h1>
                 <img src="tomato.jpg">
                 <p class="g-tag"><i class="mdi mdi-chevron-up"></i></p>
@@ -103,6 +149,7 @@
                 <form class="buy-form">
                     <input type="text" placeholder="Your Address Here"   id="f-address" >
                     <input type="text" placeholder="Your Telephone Here" id="f-phone">
+                    <select id="f-unit"><option>unit: kg</option><option>unit: count</option></select>
                     <select id="f-number">
                         <option value="0">Number</option>
                         <option value="1">1</option>
@@ -131,7 +178,7 @@
             <ul>
                 <li BF="Author:">Mailman Recat</li>
                 <li BF="Gmail:">MailmanRecat@gmail.com</li>
-                <li BF="Version:">7.0.1</li>
+                <li BF="Version:">7.1.1</li>
                 <li BF="FeedBack:">MailmanRecat@gmail.com</li>
                 <li BF="Thanks:">materialdesignicons</li>
             </ul>
@@ -177,6 +224,42 @@
             });
         })();
 
+    })(window);
+
+    var appVersion = '7.1.1';
+
+    var isONC = false;
+
+    var DidLC = function(NC){ console.log(NC) };
+
+    (function(window){
+        var isONC = false, CL = '';
+        var C_L_B = $('.current-local-btn'),
+            L_W   = $('.location-wrapper'),
+            L_C   = $('.local-card'),
+            CT    = $('.local-card .content'),
+            D_C_L = $('data-c-location');
+
+        C_L_B.onclick = function(){
+            isONC = true;
+            L_W.style.display = 'block';
+            setTimeout(function(){ L_C.classList.add('on') }, 10);
+        };
+
+        L_C.addEventListener('webkitTransitionEnd', function(){
+            if( isONC ) CT.style.display = 'block';
+            isONC = false;
+        });
+
+        [].slice.call( $$('.content button')).forEach(function(el, i){
+            el.onclick = function(){
+                CL = el.innerText;
+                if( CL !== 'Cancel' ) $('.data-c-location').innerText = CL;
+                if( CL !== 'Cancel' ) DidLC(CL);
+                L_C.classList.remove('on');
+                L_W.style.display = CT.style.display = 'none';
+            };
+        });
     })(window);
 
     var isON = true;
@@ -247,7 +330,7 @@
     };
 
     $('.close-btn').onclick = function(){
-        Interaction.view.formHide().btn.closeZoomDown().btn.nextZoomDown().btn.buyZoomUp().view.animationNotDo();
+        Interaction.view.formHide().btn.closeZoomDown().btn.nextZoomDown().view.animationNotDo();
         Faddress.value = Fphone.value = ''; Fnumber.value = 0;
     };
 
@@ -267,6 +350,8 @@
         if( isON ){
             $('.form-view').style.display = 'block';
             Interaction.btn.nextZoomUp().btn.closeZoomUp();
+        }else{
+            Interaction.btn.buyZoomUp();
         }
         isON = false;
     });
